@@ -3,11 +3,11 @@ package ee.sda.ticketingsystem.controller;
 import ee.sda.ticketingsystem.dto.TicketDTO;
 import ee.sda.ticketingsystem.entity.Ticket;
 import ee.sda.ticketingsystem.exception.TicketNotFoundException;
-import ee.sda.ticketingsystem.repository.TicketRepository;
 import ee.sda.ticketingsystem.service.TicketService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,8 +30,12 @@ public class TicketController {
         return ticketService.getAllTicket();
     }
     @PostMapping
-    public TicketDTO createTicket(@RequestBody TicketDTO ticketDTO) {
-        return ticketService.createTicket(ticketDTO);
+    public ResponseEntity<?> createTicket(@Valid @RequestBody TicketDTO ticketDTO, BindingResult bindingResult) {
+        if(bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body("Find error: " + bindingResult);
+        }
+        TicketDTO createdTicket = ticketService.createTicket(ticketDTO);
+        return ResponseEntity.ok(createdTicket);
     }
     @PutMapping("/{id}")
     public ResponseEntity<TicketDTO> editTicket(@PathVariable Integer id, @RequestBody TicketDTO updatedTicket) {
